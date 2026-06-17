@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Qué Notas Tengo Este Ciclo?</title>
+
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family:'Segoe UI',sans-serif;
+    }
+
+    body{
+        min-height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        background:linear-gradient(
+            -45deg,
+            #ff0080,
+            #7928ca,
+            #00c6ff,
+            #00ff88
+        );
+        background-size:400% 400%;
+        animation:gradient 12s ease infinite;
+        overflow:hidden;
+    }
+
+    @keyframes gradient{
+        0%{background-position:0% 50%;}
+        50%{background-position:100% 50%;}
+        100%{background-position:0% 50%;}
+    }
+
+    .card{
+        width:90%;
+        max-width:650px;
+        padding:40px;
+        text-align:center;
+        background:rgba(255,255,255,.12);
+        backdrop-filter:blur(18px);
+        border:1px solid rgba(255,255,255,.2);
+        border-radius:28px;
+        box-shadow:0 20px 60px rgba(0,0,0,.25);
+        color:white;
+    }
+
+    .logo{
+        font-size:5rem;
+        margin-bottom:10px;
+    }
+
+    h1{
+        font-size:3rem;
+        font-weight:800;
+        margin-bottom:15px;
+        text-shadow:0 0 15px rgba(255,255,255,.5);
+    }
+
+    p{
+        font-size:1.2rem;
+        opacity:.95;
+        margin-bottom:35px;
+        line-height:1.6;
+    }
+
+    .download-btn{
+        display:inline-block;
+        text-decoration:none;
+        color:white;
+        font-size:1.2rem;
+        font-weight:700;
+        padding:18px 40px;
+        border-radius:60px;
+        background:linear-gradient(
+            90deg,
+            #ffeb3b,
+            #ff9800,
+            #ff5722
+        );
+        box-shadow:
+            0 0 20px rgba(255,235,59,.7),
+            0 0 40px rgba(255,152,0,.5);
+        transition:.3s;
+    }
+
+    .download-btn:hover{
+        transform:translateY(-4px) scale(1.05);
+        box-shadow:
+            0 0 30px rgba(255,235,59,.9),
+            0 0 60px rgba(255,152,0,.7);
+    }
+
+    .footer{
+        margin-top:25px;
+        font-size:.95rem;
+        opacity:.85;
+    }
+
+    .badge{
+        margin-top:20px;
+        display:inline-block;
+        padding:8px 16px;
+        border-radius:20px;
+        background:rgba(255,255,255,.18);
+    }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="logo">📚✨</div>
+
+    <h1>¿Qué Notas Tengo Este Ciclo?</h1>
+
+    <p>
+        Consulta rápidamente tus cursos, calificaciones y avance académico
+        desde tu celular Android.
+    </p>
+
+    <a
+        class="download-btn"
+        href="https://github.com/AnthonyQuirozMenor/notas/releases/latest/download/app-release.apk"
+    >
+        📥 Descargar APK
+    </a>
+
+    <div class="badge">
+        Android APK • Última versión disponible
+    </div>
+
+    <div class="footer">
+        Desarrollado para estudiantes 🎓
+    </div>
+
+</div>
+
+</body>
+</html>
