@@ -12,7 +12,46 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> {
+  bool _showSplash = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Keep splash visible for exactly 2.5 seconds (2500ms)
+    Timer(const Duration(milliseconds: 2500), () {
+      if (mounted) {
+        setState(() {
+          _showSplash = false;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
+
+    // Smooth transition from Splash screen to Login/Home using AnimatedSwitcher
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 600),
+      child: _showSplash
+          ? const _SplashContent(key: ValueKey('splash_content'))
+          : (appState.currentUser == null 
+              ? const LoginScreen(key: ValueKey('login_screen')) 
+              : const HomeLayout(key: ValueKey('home_layout'))),
+    );
+  }
+}
+
+class _SplashContent extends StatefulWidget {
+  const _SplashContent({super.key});
+
+  @override
+  State<_SplashContent> createState() => _SplashContentState();
+}
+
+class _SplashContentState extends State<_SplashContent> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
@@ -20,7 +59,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
 
-    // Setup animation controller for logo fade-in
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -30,11 +68,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
 
-    // Start logo animation
     _animationController.forward();
-
-    // Transition timer: 2.5 seconds (2500 milliseconds)
-    Timer(const Duration(milliseconds: 2500), _navigateToNextScreen);
   }
 
   @override
@@ -43,35 +77,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     super.dispose();
   }
 
-  void _navigateToNextScreen() {
-    if (!mounted) return;
-
-    final appState = Provider.of<AppState>(context, listen: false);
-    final Widget targetScreen = appState.currentUser == null 
-        ? const LoginScreen() 
-        : const HomeLayout();
-
-    // Navigate with a smooth fade transition
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => targetScreen,
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 600),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // Define background gradient matching the Slate Indigo theme
     final gradient = isDark
         ? const LinearGradient(
             begin: Alignment.topLeft,
@@ -99,7 +109,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Centered Animated App Icon
               FadeTransition(
                 opacity: _fadeAnimation,
                 child: Hero(
@@ -123,7 +132,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       'assets/icon/app_icon.png',
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
-                        // Fallback icon if the image file has issues or is missing during load
                         return Icon(
                           Icons.today_rounded,
                           size: 70,
@@ -135,7 +143,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 ),
               ),
               const SizedBox(height: 24),
-              // Subtitle/App Name with a slight fade
               FadeTransition(
                 opacity: _fadeAnimation,
                 child: Text(
