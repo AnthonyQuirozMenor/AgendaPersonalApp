@@ -114,11 +114,11 @@ class _SplashContentState extends State<_SplashContent> with SingleTickerProvide
                 child: Hero(
                   tag: 'app_logo',
                   child: Container(
-                    width: 140,
-                    height: 140,
+                    width: 200,
+                    height: 200,
                     decoration: BoxDecoration(
                       color: isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(32),
+                      borderRadius: BorderRadius.circular(40),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.1),
@@ -127,14 +127,14 @@ class _SplashContentState extends State<_SplashContent> with SingleTickerProvide
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(24),
                     child: Image.asset(
                       'assets/icon/app_icon.png',
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return Icon(
                           Icons.today_rounded,
-                          size: 70,
+                          size: 100,
                           color: theme.colorScheme.primary,
                         );
                       },
