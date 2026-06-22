@@ -11,6 +11,7 @@ import 'services/sqlite_storage_service.dart';
 import 'services/web_storage_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home_layout.dart';
+import 'screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -94,7 +95,7 @@ class MyApp extends StatelessWidget {
       themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
 
       // --- Routing check based on user session ---
-      home: appState.currentUser == null ? const LoginScreen() : const HomeLayout(),
+      home: const SplashScreen(),
     );
   }
 }
