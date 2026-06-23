@@ -11,6 +11,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -19,6 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -28,11 +30,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     final appState = Provider.of<AppState>(context, listen: false);
-    final success = await appState.registerOffline(email, password);
+    final success = await appState.registerOffline(name, email, password);
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -110,6 +113,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                             const SizedBox(height: 20),
+
+                             // --- Name Input ---
+                            TextFormField(
+                              controller: _nameController,
+                              keyboardType: TextInputType.name,
+                              textCapitalization: TextCapitalization.words,
+                              decoration: InputDecoration(
+                                labelText: 'Nombre',
+                                prefixIcon: const Icon(Icons.person_outlined),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Por favor ingresa tu nombre.';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
 
                             // --- Email Input ---
                             TextFormField(

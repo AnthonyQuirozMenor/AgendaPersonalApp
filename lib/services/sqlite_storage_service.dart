@@ -33,11 +33,12 @@ class SqliteStorageService implements StorageService {
 
     _db = await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
             email TEXT UNIQUE,
             passwordHash TEXT,
             createdAt TEXT
@@ -68,6 +69,15 @@ class SqliteStorageService implements StorageService {
             FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE
           )
         ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          try {
+            await db.execute('ALTER TABLE users ADD COLUMN name TEXT;');
+          } catch (e) {
+            debugPrint('Failed to run migration: $e');
+          }
+        }
       },
     );
 

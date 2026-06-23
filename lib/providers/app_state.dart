@@ -9,6 +9,8 @@ import '../models/task.dart';
 import '../models/event.dart';
 import '../models/habit.dart';
 import '../services/storage_service.dart';
+import '../services/notification_service.dart';
+import 'package:intl/intl.dart';
 
 class AppState extends ChangeNotifier {
   final StorageService storageService;
@@ -140,7 +142,7 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  Future<bool> registerOffline(String email, String password) async {
+  Future<bool> registerOffline(String name, String email, String password) async {
     _isLoading = true;
     _authError = null;
     notifyListeners();
@@ -157,6 +159,7 @@ class AppState extends ChangeNotifier {
 
       final passwordHash = _hashPassword(password);
       final newUser = User(
+        name: name.trim(),
         email: normalizedEmail,
         passwordHash: passwordHash,
         createdAt: DateTime.now(),
@@ -424,22 +427,68 @@ class AppState extends ChangeNotifier {
       dueDate: dueDate,
       priority: priority,
     );
-    await storageService.createTask(task);
+    final createdTask = await storageService.createTask(task);
     await loadTasks();
+
+    // Trigger instant notification and schedule reminder
+    final name = _currentUser?.name ?? 'Anthony';
+    final timeFormatted = NotificationService.formatNotificationDateTime(dueDate);
+    await NotificationService().showInstant(
+      0,
+      '¡Felicidades, $name!',
+      'Acabas de crear tu tarea para $timeFormatted.',
+    );
+
+    if (createdTask.id != null) {
+      await NotificationService().schedule(
+        createdTask.id!,
+        'Recordatorio de Tarea',
+        '$name, tienes la tarea pendiente: "$title" hoy a las ${DateFormat('h:mm a', 'es').format(dueDate)}.',
+        dueDate,
+      );
+    }
   }
 
   Future<void> toggleTaskCompleted(Task task) async {
     final updated = task.copyWith(completed: !task.completed);
     await storageService.updateTask(updated);
     await loadTasks();
+
+    if (task.id != null) {
+      if (updated.completed) {
+        await NotificationService().cancel(task.id!);
+      } else {
+        final name = _currentUser?.name ?? 'Anthony';
+        await NotificationService().schedule(
+          task.id!,
+          'Recordatorio de Tarea',
+          '$name, tienes la tarea pendiente: "${task.title}" hoy a las ${DateFormat('h:mm a', 'es').format(task.dueDate)}.',
+          task.dueDate,
+        );
+      }
+    }
   }
 
   Future<void> updateTask(Task task) async {
     await storageService.updateTask(task);
     await loadTasks();
+
+    if (task.id != null) {
+      await NotificationService().cancel(task.id!);
+      if (!task.completed) {
+        final name = _currentUser?.name ?? 'Anthony';
+        await NotificationService().schedule(
+          task.id!,
+          'Recordatorio de Tarea',
+          '$name, tienes la tarea pendiente: "${task.title}" hoy a las ${DateFormat('h:mm a', 'es').format(task.dueDate)}.',
+          task.dueDate,
+        );
+      }
+    }
   }
 
   Future<void> deleteTask(int taskId) async {
+    await NotificationService().cancel(taskId);
     await storageService.deleteTask(taskId);
     await loadTasks();
   }
@@ -466,16 +515,70 @@ class AppState extends ChangeNotifier {
       startDate: startDate,
       endDate: endDate,
     );
-    await storageService.createEvent(event);
+    final createdEvent = await storageService.createEvent(event);
     await loadEvents();
+
+    final name = _currentUser?.name ?? 'Anthony';
+    final timeFormatted = NotificationService.formatNotificationDateTime(startDate);
+    await NotificationService().showInstant(
+      0,
+      '¡Felicidades, $name!',
+      'Acabas de agendar tu evento para $timeFormatted.',
+    );
+
+    if (createdEvent.id != null) {
+      // 1. Same-day event reminder at start time
+      await NotificationService().schedule(
+        createdEvent.id!,
+        'Próximo Evento',
+        '$name, tienes el evento "$title" hoy a las ${DateFormat('h:mm a', 'es').format(startDate)}.',
+        startDate,
+      );
+      
+      // 2. Day-before event reminder at the same hour
+      final dayBefore = startDate.subtract(const Duration(days: 1));
+      if (dayBefore.isAfter(DateTime.now())) {
+        await NotificationService().schedule(
+          createdEvent.id! + 1000000,
+          'Evento Mañana',
+          '$name, mañana tienes el evento: "$title" a las ${DateFormat('h:mm a', 'es').format(startDate)}.',
+          dayBefore,
+        );
+      }
+    }
   }
 
   Future<void> updateEvent(Event event) async {
     await storageService.updateEvent(event);
     await loadEvents();
+
+    if (event.id != null) {
+      await NotificationService().cancel(event.id!);
+      await NotificationService().cancel(event.id! + 1000000);
+
+      final name = _currentUser?.name ?? 'Anthony';
+      await NotificationService().schedule(
+        event.id!,
+        'Próximo Evento',
+        '$name, tienes el evento "${event.title}" hoy a las ${DateFormat('h:mm a', 'es').format(event.startDate)}.',
+        event.startDate,
+      );
+
+      final dayBefore = event.startDate.subtract(const Duration(days: 1));
+      if (dayBefore.isAfter(DateTime.now())) {
+        await NotificationService().schedule(
+          event.id! + 1000000,
+          'Evento Mañana',
+          '$name, mañana tienes el evento: "${event.title}" a las ${DateFormat('h:mm a', 'es').format(event.startDate)}.',
+          dayBefore,
+        );
+      }
+    }
   }
 
   Future<void> deleteEvent(int eventId) async {
+    await NotificationService().cancel(eventId);
+    await NotificationService().cancel(eventId + 1000000);
     await storageService.deleteEvent(eventId);
     await loadEvents();
   }

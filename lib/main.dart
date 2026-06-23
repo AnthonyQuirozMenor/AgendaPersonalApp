@@ -12,12 +12,16 @@ import 'services/web_storage_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home_layout.dart';
 import 'screens/splash_screen.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize date formatting for Spanish locale
   await initializeDateFormatting('es', null);
+
+  // Initialize Local Notifications
+  await NotificationService().init();
 
   // Initialize Supabase Auth only if valid credentials are provided
   final bool isSupabaseConfigured = SupabaseConfig.url.startsWith('http');
