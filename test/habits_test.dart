@@ -81,7 +81,7 @@ void main() {
       storageService = WebStorageService();
       await storageService.init();
       appState = AppState(storageService: storageService);
-      await appState.registerOffline('test@example.com', '123');
+      await appState.registerOffline('Test User', 'test@example.com', '123');
     });
 
     test('Restringe a máximo 6 hábitos activos al mismo tiempo', () async {
