@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Agenda Personal',
+                      'Agenda Personal.',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineLarge?.copyWith(
                         fontWeight: FontWeight.bold,
